@@ -148,7 +148,7 @@ pub fn run(
                 // Fan speed:
                 if have_fans {
                     let gauge = draw_fan_speed(gpu);
-                    f.render_widget(gauge, chunks[2]);                  
+                    f.render_widget(gauge, chunks[2]);
                 }
             }
         })?;
@@ -176,7 +176,6 @@ pub fn run(
                         }) {
                             Ok(()) => {
                                 lh.debug("Re-scanned PCI tree");
-                                have_fans = true;
                             }
                             Err(e @ (NvmlError::OperatingSystem | NvmlError::NoPermission)) => {
                                 lh.debug(&format!("Failed to re-scan PCI tree: {e}"));
@@ -188,6 +187,9 @@ pub fn run(
                         if selected_gpu >= gpu_list.len() {
                             selected_gpu = 0;
                         }
+                        have_fans = gpu_list
+                            .iter()
+                            .any(|gpu| gpu.inner.num_fans().map_or(0, |fc| fc) != 0);
                     }
                     _ => {}
                 }
